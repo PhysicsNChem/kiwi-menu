@@ -310,6 +310,108 @@ const OptionsPage = GObject.registerClass(
 
       customMenuExpanderRow.add_row(customMenuCommandRow);
 
+      // Custom menu icon chooser
+      const defaultIconSubtitle = this._('Optional image shown next to the menu label.');
+      const customMenuIconRow = new Adw.ActionRow({
+        title: this._('Icon'),
+        subtitle: defaultIconSubtitle,
+      });
+
+      const iconPreview = new Gtk.Image({
+        pixel_size: 24,
+        valign: Gtk.Align.CENTER,
+      });
+
+      const iconChooseButton = new Gtk.Button({
+        icon_name: 'document-open-symbolic',
+        has_frame: false,
+        tooltip_text: this._('Choose Icon File'),
+        valign: Gtk.Align.CENTER,
+      });
+      iconChooseButton.add_css_class?.('circular');
+
+      const iconClearButton = new Gtk.Button({
+        icon_name: 'edit-clear-symbolic',
+        has_frame: false,
+        tooltip_text: this._('Remove Icon'),
+        valign: Gtk.Align.CENTER,
+      });
+      iconClearButton.add_css_class?.('circular');
+
+      customMenuIconRow.add_suffix?.(iconPreview);
+      customMenuIconRow.add_suffix?.(iconChooseButton);
+      customMenuIconRow.add_suffix?.(iconClearButton);
+
+      const updateIconRow = () => {
+        const path = this._settings.get_string('custom-menu-icon')?.trim() ?? '';
+        const hasIcon = path.length > 0;
+
+        if (hasIcon) {
+          const file = Gio.File.new_for_path(path);
+          const exists = file.query_exists(null);
+          if (exists) {
+            iconPreview.set_from_gicon?.(new Gio.FileIcon({ file }));
+          } else {
+            iconPreview.clear?.();
+          }
+          iconPreview.set_visible(exists);
+          customMenuIconRow.set_subtitle?.(
+            exists ? file.get_basename() : this._('Selected file was not found.')
+          );
+        } else {
+          iconPreview.clear?.();
+          iconPreview.set_visible(false);
+          customMenuIconRow.set_subtitle?.(defaultIconSubtitle);
+        }
+
+        iconClearButton.set_visible(hasIcon);
+      };
+
+      iconChooseButton.connect('clicked', () => {
+        const dialog = new Gtk.FileDialog({
+          title: this._('Select Custom Menu Icon'),
+          modal: true,
+        });
+
+        const filter = new Gtk.FileFilter();
+        filter.set_name(this._('Images'));
+        filter.add_pixbuf_formats?.();
+        filter.add_mime_type('image/svg+xml');
+
+        const filters = new Gio.ListStore({ item_type: Gtk.FileFilter });
+        filters.append(filter);
+        dialog.set_filters(filters);
+
+        const currentPath = this._settings.get_string('custom-menu-icon')?.trim() ?? '';
+        if (currentPath.length > 0) {
+          const currentFile = Gio.File.new_for_path(currentPath);
+          if (currentFile.query_exists(null)) {
+            dialog.set_initial_file?.(currentFile);
+          }
+        }
+
+        const root = customMenuIconRow.get_root?.() ?? null;
+        dialog.open(root, null, (source, result) => {
+          try {
+            const file = source.open_finish(result);
+            if (file) {
+              this._settings.set_string('custom-menu-icon', file.get_path());
+            }
+          } catch (error) {
+            // User dismissed the dialog; nothing to do.
+          }
+        });
+      });
+
+      iconClearButton.connect('clicked', () => {
+        this._settings.set_string('custom-menu-icon', '');
+      });
+
+      this._settings.connect('changed::custom-menu-icon', updateIconRow);
+      updateIconRow();
+
+      customMenuExpanderRow.add_row(customMenuIconRow);
+
       menuGroup.add(customMenuExpanderRow);
 
       // Handle custom menu enable/disable

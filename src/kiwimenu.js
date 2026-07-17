@@ -96,6 +96,11 @@ export const KiwiMenu = GObject.registerClass(
           this._renderPopupMenu().catch(logError)
         )
       );
+      this._settingsSignalIds.push(
+        this._settings.connect('changed::custom-menu-icon', () =>
+          this._renderPopupMenu().catch(logError)
+        )
+      );
 
       this._menuOpenSignalId = this.menu.connect(
         'open-state-changed',

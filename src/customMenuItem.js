@@ -3,6 +3,7 @@
  * customMenuItem.js - Handles custom menu item functionality.
  */
 
+import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
@@ -26,16 +27,25 @@ export function createCustomMenuItem(settings, gettextFunc) {
 
     const label = settings.get_string('custom-menu-label');
     const command = settings.get_string('custom-menu-command');
+    const iconPath = settings.get_string('custom-menu-icon');
 
     // Don't create menu item if label or command is empty
     const trimmedLabel = label?.trim?.() ?? '';
     const trimmedCommand = command?.trim?.() ?? '';
+    const trimmedIconPath = iconPath?.trim?.() ?? '';
 
     if (trimmedLabel.length === 0 || trimmedCommand.length === 0) {
         return null;
     }
 
-    const menuItem = new PopupMenu.PopupMenuItem(trimmedLabel);
+    // Use an image menu item when a valid icon file is configured
+    const iconFile = trimmedIconPath.length > 0
+        ? Gio.File.new_for_path(trimmedIconPath)
+        : null;
+
+    const menuItem = iconFile?.query_exists(null)
+        ? new PopupMenu.PopupImageMenuItem(trimmedLabel, new Gio.FileIcon({ file: iconFile }))
+        : new PopupMenu.PopupMenuItem(trimmedLabel);
 
     menuItem.connect('activate', () => {
         try {

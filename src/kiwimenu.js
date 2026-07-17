@@ -11,7 +11,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
-import { openForceQuitOverlay } from './forceQuitOverlay.js';
+import { openForceQuitDialog } from './forceQuitDialog.js';
 import { RecentItemsSubmenu } from './recentItemsSubmenu.js';
 import { createCustomMenuItem } from './customMenuItem.js';
 
@@ -334,12 +334,12 @@ export const KiwiMenu = GObject.registerClass(
 
     _makeMenu(title, cmds) {
       const menuItem = new PopupMenu.PopupMenuItem(title);
-      const isForceQuit = Array.isArray(cmds) && cmds.length === 1 && cmds[0] === 'xkill';
+      const isForceQuit = Array.isArray(cmds) && cmds.length === 1 && cmds[0] === 'force-quit';
 
       menuItem.connect('activate', () => {
         if (isForceQuit) {
           this.menu.close(true);
-          this._openForceQuitOverlay();
+          this._openForceQuitDialog();
           return;
         }
 
@@ -358,11 +358,11 @@ export const KiwiMenu = GObject.registerClass(
       this.menu.addMenuItem(separator);
     }
 
-    _openForceQuitOverlay() {
+    _openForceQuitDialog() {
       try {
-        openForceQuitOverlay();
+        openForceQuitDialog(this._gettext.bind(this));
       } catch (error) {
-        logError(error, 'Failed to open Force Quit overlay');
+        logError(error, 'Failed to open Force Quit dialog');
       }
     }
 

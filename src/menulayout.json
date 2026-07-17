@@ -31,7 +31,7 @@
   {
     "type": "menu",
     "title": "Force Quit",
-    "cmds": ["xkill"]
+    "cmds": ["force-quit"]
   },
   {
     "type": "separator"

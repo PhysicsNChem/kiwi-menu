@@ -10,7 +10,7 @@
 
 Kiwi Menu replaces the Activities button with a compact, macOS-inspired launcher that keeps your most common session actions one click away.
 
-<img width="2083" height="1407" alt="kiwi-menu2" src="https://github.com/user-attachments/assets/951e4994-ba33-4b54-9354-658bda2f6df1" />
+<img alt="kiwi-menu" src="https://extensions.gnome.org/extension-data/screenshots/screenshot_8697_vEAQnNX.png" />
 
 ## Features
 
@@ -41,7 +41,3 @@ Want to help translate Kiwi Menu to your language? See the [translation guide](t
 ## Contributing
 
 Contributions and feature requests are welcome. This extension is designed to help macOS users feel at home on GNOME, so the main goal is a clean, minimal menu with familiar behavior. I try to avoid feature creep and large configuration surfaces to keep the project easy to maintain. If you have an idea that is more feature rich, I am happy to point you to similar projects where it may fit better.
-
-## License
-
-Kiwi Menu is distributed under the terms of the GNU General Public License v3.0 or later. See `LICENSE` for details.

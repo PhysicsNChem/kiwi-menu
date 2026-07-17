@@ -379,7 +379,7 @@ export const KiwiMenu = GObject.registerClass(
     }
 
     _openForceQuitWindow() {
-      const script = GLib.build_filenamev([this._extensionPath, 'src', 'forceQuitWindow.js']);
+      const script = GLib.build_filenamev([this._extensionPath, 'app', 'forceQuitWindow.js']);
       try {
         Util.spawn(['gjs', '-m', script]);
       } catch (error) {
@@ -388,7 +388,7 @@ export const KiwiMenu = GObject.registerClass(
     }
 
     _openAboutWindow() {
-      const script = GLib.build_filenamev([this._extensionPath, 'src', 'aboutWindow.js']);
+      const script = GLib.build_filenamev([this._extensionPath, 'app', 'aboutWindow.js']);
       try {
         Util.spawn(['gjs', '-m', script]);
       } catch (error) {

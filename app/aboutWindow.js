@@ -1,3 +1,4 @@
+#!@GJS@ -m
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
  * aboutWindow.js - Standalone GTK4 "About This PC" window. Launched by

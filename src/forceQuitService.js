@@ -3,7 +3,7 @@
  * forceQuitService.js - D-Bus service backing the Force Quit Applications
  * window. Provides the list of running applications (with their PIDs) and
  * performs the actual force quit, both on behalf of the GTK helper
- * (src/forceQuitWindow.js) which runs outside the shell process.
+ * (app/forceQuitWindow.js) which runs outside the shell process.
  */
 
 import Gio from 'gi://Gio';

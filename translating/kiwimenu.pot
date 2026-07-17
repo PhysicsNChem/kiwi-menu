@@ -97,31 +97,31 @@ msgstr ""
 msgid "Users & Groups Settings..."
 msgstr ""
 
-#: src/forceQuitWindow.js
+#: app/forceQuitWindow.js
 msgid "Force Quit Applications"
 msgstr ""
 
-#: src/forceQuitWindow.js
+#: app/forceQuitWindow.js
 msgid "If an app doesn't respond for a while, select its name and click Force Quit."
 msgstr ""
 
-#: src/aboutWindow.js
+#: app/aboutWindow.js
 msgid "Chip"
 msgstr ""
 
-#: src/aboutWindow.js
+#: app/aboutWindow.js
 msgid "Memory"
 msgstr ""
 
-#: src/aboutWindow.js
+#: app/aboutWindow.js
 msgid "Serial number"
 msgstr ""
 
-#: src/aboutWindow.js
+#: app/aboutWindow.js
 msgid "OS"
 msgstr ""
 
-#: src/aboutWindow.js
+#: app/aboutWindow.js
 msgid "More Info..."
 msgstr ""
 

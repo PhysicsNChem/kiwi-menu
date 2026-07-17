@@ -1,3 +1,4 @@
+#!@GJS@ -m
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
  * forceQuitWindow.js - Standalone GTK4 "Force Quit Applications" window.

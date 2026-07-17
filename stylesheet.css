@@ -25,6 +25,10 @@
   max-width: 300px;
 }
 
+.kiwi-main-menu .popup-menu-icon {
+  icon-size: 0.9em;
+}
+
 .popup-section-header-label {
   font-weight: bold;
   font-size: 0.9em;

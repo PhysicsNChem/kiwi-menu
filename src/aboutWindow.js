@@ -22,12 +22,15 @@ label.kiwi-about-title {
 label.kiwi-about-key {
   font-weight: 600;
 }
+label.kiwi-about-value {
+  font-weight: 500;
+}
 grid.kiwi-about-grid label,
 label.kiwi-about-subtitle {
   font-size: 13px;
 }
 button.kiwi-about-button {
-  font-weight: normal;
+  font-weight: 500;
   font-size: 13px;
   min-height: 0;
   padding: 4px 14px;
@@ -130,8 +133,8 @@ function buildWindow(application) {
   const window = new Gtk.ApplicationWindow({
     application,
     title: _('About This PC'),
-    default_width: 300,
-    default_height: 470,
+    default_width: 280,
+    default_height: 480,
     resizable: false,
   });
 
@@ -151,8 +154,7 @@ function buildWindow(application) {
   );
   const image = new Gtk.Image({
     gicon: new Gio.FileIcon({ file: imageFile }),
-    pixel_size: 128,
-    margin_top: 12,
+    pixel_size: 180,
   });
 
   const modelName = (
@@ -166,7 +168,7 @@ function buildWindow(application) {
     label: modelName || GLib.get_host_name(),
     ellipsize: Pango.EllipsizeMode.END,
     max_width_chars: 20,
-    margin_top: 20,
+    margin_top: 0,
   });
   titleLabel.add_css_class('kiwi-about-title');
 
@@ -195,6 +197,7 @@ function buildWindow(application) {
       max_width_chars: 28,
     });
     valueLabel.add_css_class('dim-label');
+    valueLabel.add_css_class('kiwi-about-value');
     grid.attach(keyLabel, 0, row, 1, 1);
     grid.attach(valueLabel, 1, row, 1, 1);
   });

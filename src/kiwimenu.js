@@ -11,7 +11,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
-import { openForceQuitDialog } from './forceQuitDialog.js';
+import { ForceQuitService } from './forceQuitService.js';
 import { RecentItemsSubmenu } from './recentItemsSubmenu.js';
 import { createCustomMenuItem } from './customMenuItem.js';
 
@@ -49,6 +49,7 @@ export const KiwiMenu = GObject.registerClass(
   this._recentMenuManager = new PopupMenu.PopupMenuManager(this);
   this._cancellable = new Gio.Cancellable();
   this._isDestroyed = false;
+  this._forceQuitService = new ForceQuitService();
 
       this._icons = [];
       this._layout = [];
@@ -145,6 +146,11 @@ export const KiwiMenu = GObject.registerClass(
 
       this._showActivitiesButton();
 
+      if (this._forceQuitService) {
+        this._forceQuitService.destroy();
+        this._forceQuitService = null;
+      }
+
       this._settings = null;
 
       super.destroy();
@@ -219,7 +225,7 @@ export const KiwiMenu = GObject.registerClass(
       layout.forEach((item) => {
         switch (item.type) {
           case 'menu':
-            this._makeMenu(item.title, item.cmds);
+            this._makeMenu(item.title, item.cmds, item.icon);
             
             // Add custom menu item right after App Store entry
             if (!customMenuAdded && item.commandSettingKey === 'app-store-command') {
@@ -231,7 +237,7 @@ export const KiwiMenu = GObject.registerClass(
             }
             break;
           case 'recent-items':
-            this._makeRecentItemsMenu(item.title);
+            this._makeRecentItemsMenu(item.title, item.icon);
             break;
           case 'separator':
             this._makeSeparator();
@@ -332,14 +338,16 @@ export const KiwiMenu = GObject.registerClass(
       }
     }
 
-    _makeMenu(title, cmds) {
-      const menuItem = new PopupMenu.PopupMenuItem(title);
+    _makeMenu(title, cmds, iconName) {
+      const menuItem = iconName
+        ? new PopupMenu.PopupImageMenuItem(title, iconName)
+        : new PopupMenu.PopupMenuItem(title);
       const isForceQuit = Array.isArray(cmds) && cmds.length === 1 && cmds[0] === 'force-quit';
 
       menuItem.connect('activate', () => {
         if (isForceQuit) {
           this.menu.close(true);
-          this._openForceQuitDialog();
+          this._openForceQuitWindow();
           return;
         }
 
@@ -348,8 +356,8 @@ export const KiwiMenu = GObject.registerClass(
       this.menu.addMenuItem(menuItem);
     }
 
-    _makeRecentItemsMenu(title) {
-      const submenuItem = new RecentItemsSubmenu(title, this.menu, this._recentMenuManager, this._extension);
+    _makeRecentItemsMenu(title, iconName) {
+      const submenuItem = new RecentItemsSubmenu(title, this.menu, this._recentMenuManager, this._extension, iconName);
       this.menu.addMenuItem(submenuItem);
     }
 
@@ -358,11 +366,12 @@ export const KiwiMenu = GObject.registerClass(
       this.menu.addMenuItem(separator);
     }
 
-    _openForceQuitDialog() {
+    _openForceQuitWindow() {
+      const script = GLib.build_filenamev([this._extensionPath, 'src', 'forceQuitWindow.js']);
       try {
-        openForceQuitDialog(this._gettext.bind(this));
+        Util.spawn(['gjs', '-m', script]);
       } catch (error) {
-        logError(error, 'Failed to open Force Quit dialog');
+        logError(error, 'Failed to launch Force Quit window');
       }
     }
 

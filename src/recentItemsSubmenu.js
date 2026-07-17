@@ -53,7 +53,7 @@ async function loadFileTextAsync(file, cancellable) {
 export const RecentItemsSubmenu = GObject.registerClass(
   { GTypeName: 'KiwiMenuRecentItemsSubmenu' },
   class RecentItemsSubmenu extends PopupMenu.PopupBaseMenuItem {
-    _init(title, parentMenu, recentMenuManager, extension) {
+    _init(title, parentMenu, recentMenuManager, extension, iconName) {
       super._init({
         reactive: true,
         can_focus: true,
@@ -82,6 +82,15 @@ export const RecentItemsSubmenu = GObject.registerClass(
     this._isDestroyed = false;
 
     // Build UI
+    if (iconName) {
+      const icon = new St.Icon({
+        icon_name: iconName,
+        style_class: 'popup-menu-icon',
+        y_align: Clutter.ActorAlign.CENTER,
+      });
+      this.add_child(icon);
+    }
+
     const label = new St.Label({
       text: title,
       x_expand: true,

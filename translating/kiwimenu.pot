@@ -97,28 +97,12 @@ msgstr ""
 msgid "Users & Groups Settings..."
 msgstr ""
 
-#: src/forceQuitDialog.js
+#: src/forceQuitWindow.js
 msgid "Force Quit Applications"
 msgstr ""
 
-#: src/forceQuitDialog.js
+#: src/forceQuitWindow.js
 msgid "If an app doesn't respond for a while, select its name and click Force Quit."
-msgstr ""
-
-#: src/forceQuitDialog.js
-msgid "Application"
-msgstr ""
-
-#: src/forceQuitDialog.js
-msgid "CPU"
-msgstr ""
-
-#: src/forceQuitDialog.js
-msgid "Memory"
-msgstr ""
-
-#: src/forceQuitDialog.js
-msgid "Cancel"
 msgstr ""
 
 #: prefs.js

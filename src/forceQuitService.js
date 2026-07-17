@@ -27,8 +27,8 @@ const NON_KILLABLE_WM_CLASSES = new Set([
   'gnome-shell',
 ]);
 
-// Kiwi Menu's own Force Quit window must never list or kill itself.
-const SELF_ID_FRAGMENT = 'kiwimenu.forcequit';
+// Kiwi Menu's own helper windows (Force Quit, About) must never list or kill themselves.
+const SELF_ID_FRAGMENT = 'com.github.kemma.kiwimenu';
 
 function getAppPids(app) {
   const pids = new Set();

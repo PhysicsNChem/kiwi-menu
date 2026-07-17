@@ -17,7 +17,7 @@ Kiwi Menu replaces the Activities button with a compact, macOS-inspired launcher
 - **macOS style panel button**: Swaps the Activities label for a tidy icon-only trigger that blends into GNOME Shell.
 - **macOS style user switcher**: Adds button to the panel with popup menu to switch between user sessions.
 - **Recent items submenu**: Hover or click to browse recent files and folders with automatic section headers and quick launch support.
-- **Force Quit overlay**: Launches the built-in xkill helper from the menu when an app misbehaves. Optionaly, can also close all apps in current workspace.
+- **Force Quit dialog**: macOS style Force Quit Applications window listing running apps with CPU and memory usage. Select an app and force quit it when it misbehaves.
 - **Custom AppStore command**: Add your distro specific App store shortcut
 - **Personalized Menu Item**: Add one custom menu entry of your choice
 - **Adaptive logout label**: Personalizes the log out entry with your full name when available.

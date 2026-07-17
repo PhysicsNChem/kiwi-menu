@@ -2,7 +2,7 @@
   {
     "type": "menu",
     "title": "About This PC",
-    "cmds": ["gnome-control-center", "about"],
+    "cmds": ["about-this-pc"],
     "icon": "computer-symbolic"
   },
   {

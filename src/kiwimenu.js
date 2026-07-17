@@ -343,11 +343,18 @@ export const KiwiMenu = GObject.registerClass(
         ? new PopupMenu.PopupImageMenuItem(title, iconName)
         : new PopupMenu.PopupMenuItem(title);
       const isForceQuit = Array.isArray(cmds) && cmds.length === 1 && cmds[0] === 'force-quit';
+      const isAboutThisPc = Array.isArray(cmds) && cmds.length === 1 && cmds[0] === 'about-this-pc';
 
       menuItem.connect('activate', () => {
         if (isForceQuit) {
           this.menu.close(true);
           this._openForceQuitWindow();
+          return;
+        }
+
+        if (isAboutThisPc) {
+          this.menu.close(true);
+          this._openAboutWindow();
           return;
         }
 
@@ -372,6 +379,15 @@ export const KiwiMenu = GObject.registerClass(
         Util.spawn(['gjs', '-m', script]);
       } catch (error) {
         logError(error, 'Failed to launch Force Quit window');
+      }
+    }
+
+    _openAboutWindow() {
+      const script = GLib.build_filenamev([this._extensionPath, 'src', 'aboutWindow.js']);
+      try {
+        Util.spawn(['gjs', '-m', script]);
+      } catch (error) {
+        logError(error, 'Failed to launch About This PC window');
       }
     }
 

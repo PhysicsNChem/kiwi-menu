@@ -102,11 +102,36 @@ function readOsRelease() {
   return fields;
 }
 
+// GNOME Shell version, read from its D-Bus property (canonical source,
+// no subprocess). Returns null off GNOME so the row is simply omitted.
+function readDesktopVersion() {
+  try {
+    const reply = Gio.DBus.session.call_sync(
+      'org.gnome.Shell',
+      '/org/gnome/Shell',
+      'org.freedesktop.DBus.Properties',
+      'Get',
+      new GLib.Variant('(ss)', ['org.gnome.Shell', 'ShellVersion']),
+      null,
+      Gio.DBusCallFlags.NONE,
+      -1,
+      null
+    );
+    const [version] = reply.recursiveUnpack();
+    return version ? `GNOME ${version}` : null;
+  } catch {
+    return null;
+  }
+}
+
 function buildWindow(application) {
-  const window = new Adw.ApplicationWindow({
+  // Gtk.ApplicationWindow (not Adw): AdwApplicationWindow enforces a 360px
+  // minimum width, which is wider than this compact panel needs.
+  const window = new Gtk.ApplicationWindow({
     application,
     title: _('About This PC'),
-    default_width: 280,
+    default_width: 300,
+    default_height: 470,
     resizable: false,
   });
 
@@ -149,7 +174,7 @@ function buildWindow(application) {
   const details = [
     [_('Chip'), readCpuModel()],
     [_('Memory'), readMemory()],
-    [_('Serial number'), readDmiField('product_serial')],
+    [_('Desktop'), readDesktopVersion()],
     [_('OS'), osName || 'Linux'],
   ].filter(([, value]) => value);
 
@@ -216,12 +241,15 @@ function buildWindow(application) {
     .map((side) => side.split(',').filter((btn) => btn !== 'minimize').join(','))
     .join(':');
 
-  const toolbarView = new Adw.ToolbarView({ content });
-  toolbarView.add_top_bar(new Adw.HeaderBar({
+  const headerBar = new Adw.HeaderBar({
     decoration_layout: decorationLayout,
     show_title: false,
-  }));
-  window.set_content(toolbarView);
+  });
+  // Flat removes the header background and its bottom border so it blends
+  // into the window instead of standing out as a separate bar.
+  headerBar.add_css_class('flat');
+  window.set_titlebar(headerBar);
+  window.set_child(content);
 
   return window;
 }

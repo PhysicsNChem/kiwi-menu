@@ -805,7 +805,7 @@ export const RecentItemsSubmenu = GObject.registerClass(
 
       const info = file.query_info('standard::icon,standard::type', Gio.FileQueryInfoFlags.NONE, null);
       if (info) {
-        return info.get_icon?.() ?? null;
+        return info.get_icon() ?? null;
       }
     } catch (_error) {
       // Swallow errors; fall back to themed icon based on item type.
@@ -912,7 +912,7 @@ export const RecentItemsSubmenu = GObject.registerClass(
         });
       }
     } catch (error) {
-      if (error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+      if (error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
         return state;
       }
       logError(error, 'Failed to read recent applications state');
@@ -937,9 +937,9 @@ export const RecentItemsSubmenu = GObject.registerClass(
         return applications;
       }
 
-      const appSystem = Shell.AppSystem?.get_default?.() ?? null;
+      const appSystem = Shell.AppSystem.get_default();
       const seen = new Set();
-      const rawCandidates = usage.get_most_used?.();
+      const rawCandidates = usage.get_most_used();
       const candidates = [];
 
       if (Array.isArray(rawCandidates)) {
@@ -969,7 +969,7 @@ export const RecentItemsSubmenu = GObject.registerClass(
 
         seen.add(desktopId);
 
-        const appInfo = app.get_app_info?.() ?? appSystem?.lookup_app?.(desktopId)?.get_app_info?.();
+        const appInfo = app.get_app_info() ?? appSystem.lookup_app(desktopId)?.get_app_info();
         if (!appInfo) {
           continue;
         }
@@ -980,12 +980,12 @@ export const RecentItemsSubmenu = GObject.registerClass(
             : desktopId;
 
         const title =
-          appInfo.get_display_name?.() ??
-          appInfo.get_name?.() ??
-          app.get_name?.() ??
+          appInfo.get_display_name() ??
+          appInfo.get_name() ??
+          app.get_name() ??
           fallbackName;
 
-        const gicon = app.get_gicon?.() ?? appInfo.get_icon?.() ?? null;
+        const gicon = app.get_icon() ?? appInfo.get_icon() ?? null;
 
         applications.push({
           title,
@@ -1019,7 +1019,7 @@ export const RecentItemsSubmenu = GObject.registerClass(
     try {
       text = await loadFileTextAsync(file, this._cancellable);
     } catch (error) {
-      if (error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+      if (error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
         return [];
       }
       logError(error, 'Failed to read recent items list');

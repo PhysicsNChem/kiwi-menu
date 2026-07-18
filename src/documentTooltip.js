@@ -94,7 +94,7 @@ export const DocumentTooltip = GObject.registerClass(
     }
 
     _showTooltip() {
-      if (!this._target || !this._target.get_stage?.()) {
+      if (!this._target || !this._target.get_stage()) {
         return;
       }
 
@@ -117,13 +117,13 @@ export const DocumentTooltip = GObject.registerClass(
         return;
       }
 
-      const extents = this._target.get_transformed_extents?.();
+      const extents = this._target.get_transformed_extents();
       if (!extents) {
         return;
       }
 
-      const node = this.get_theme_node?.();
-      const yOffset = node?.get_length?.('-y-offset') ?? 6;
+      const node = this.get_theme_node();
+      const yOffset = node.get_length('-y-offset') || 6;
 
       const [, naturalWidth] = this.get_preferred_width(-1);
       const [, naturalHeight] = this.get_preferred_height(naturalWidth);

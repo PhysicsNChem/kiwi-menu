@@ -30,9 +30,9 @@ export function createCustomMenuItem(settings, gettextFunc) {
     const iconPath = settings.get_string('custom-menu-icon');
 
     // Don't create menu item if label or command is empty
-    const trimmedLabel = label?.trim?.() ?? '';
-    const trimmedCommand = command?.trim?.() ?? '';
-    const trimmedIconPath = iconPath?.trim?.() ?? '';
+    const trimmedLabel = label.trim();
+    const trimmedCommand = command.trim();
+    const trimmedIconPath = iconPath.trim();
 
     if (trimmedLabel.length === 0 || trimmedCommand.length === 0) {
         return null;

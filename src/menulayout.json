@@ -44,19 +44,19 @@
   {
     "type": "menu",
     "title": "Sleep",
-    "cmds": ["systemctl", "suspend"],
+    "cmds": ["suspend"],
     "icon": "weather-clear-night-symbolic"
   },
   {
     "type": "menu",
     "title": "Restart...",
-    "cmds": ["gnome-session-quit", "--reboot"],
+    "cmds": ["restart"],
     "icon": "system-reboot-symbolic"
   },
   {
     "type": "menu",
     "title": "Shut Down...",
-    "cmds": ["gnome-session-quit", "--power-off"],
+    "cmds": ["power-off"],
     "icon": "system-shutdown-symbolic"
   },
   {
@@ -65,13 +65,13 @@
   {
     "type": "menu",
     "title": "Lock Screen",
-    "cmds": ["loginctl", "lock-session"],
+    "cmds": ["lock-screen"],
     "icon": "system-lock-screen-symbolic"
   },
   {
     "type": "menu",
     "title": "Log Out...",
-    "cmds": ["gnome-session-quit", "--logout"],
+    "cmds": ["logout"],
     "icon": "system-log-out-symbolic"
   }
 ]

@@ -33,7 +33,7 @@ const SELF_ID_FRAGMENT = 'com.github.kemma.kiwimenu';
 function getAppPids(app) {
   const pids = new Set();
   for (const window of app.get_windows()) {
-    const pid = window.get_pid?.() ?? 0;
+    const pid = window.get_pid();
     if (pid > 0) {
       pids.add(pid);
     }
@@ -42,7 +42,7 @@ function getAppPids(app) {
 }
 
 function isKillableApp(app) {
-  if (app.get_id()?.toLowerCase?.().includes(SELF_ID_FRAGMENT)) {
+  if (app.get_id()?.toLowerCase().includes(SELF_ID_FRAGMENT)) {
     return false;
   }
 
@@ -52,7 +52,7 @@ function isKillableApp(app) {
   }
 
   return !windows.some((window) => {
-    const wmClass = window.get_wm_class()?.toLowerCase?.() ?? '';
+    const wmClass = window.get_wm_class()?.toLowerCase() ?? '';
     return NON_KILLABLE_WM_CLASSES.has(wmClass) || wmClass.includes(SELF_ID_FRAGMENT);
   });
 }
@@ -95,7 +95,7 @@ export class ForceQuitService {
 
     const killedPids = new Set();
     for (const window of app.get_windows()) {
-      const pid = window.get_pid?.() ?? 0;
+      const pid = window.get_pid();
       if (killedPids.has(pid)) {
         continue;
       }

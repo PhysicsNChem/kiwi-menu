@@ -39,12 +39,12 @@ function countRealUsers(userManager) {
       continue;
     }
 
-    const uid = Number.parseInt(user.get_uid?.() ?? '-1', 10);
+    const uid = Number.parseInt(user.get_uid(), 10);
     if (!Number.isFinite(uid)) {
       continue;
     }
 
-    const username = user.get_user_name?.();
+    const username = user.get_user_name();
     if (!username) {
       continue;
     }
@@ -323,7 +323,7 @@ export const UserSwitcherButton = GObject.registerClass(
           this._loginManagerProxy = proxy;
           return proxy;
         } catch (error) {
-          if (!error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+          if (!(error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))) {
             logError(error, 'Failed to acquire login1 Manager proxy');
           }
           this._loginManagerProxy = null;
@@ -356,9 +356,9 @@ export const UserSwitcherButton = GObject.registerClass(
         }
 
         const variant = sessionProxy.get_cached_property(propertyName);
-        return variant?.deepUnpack?.() ?? null;
+        return variant?.deepUnpack() ?? null;
       } catch (error) {
-        if (error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+        if (error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
           return null;
         }
         logError(error, `Failed to read session ${propertyName} for ${sessionPath}`);
@@ -393,7 +393,7 @@ export const UserSwitcherButton = GObject.registerClass(
           return { loggedInUsers, sessions };
         }
 
-        const rawList = result?.deepUnpack?.() ?? [];
+        const rawList = result?.deepUnpack() ?? [];
         const sessionList = (rawList.length === 1 && Array.isArray(rawList[0]) && Array.isArray(rawList[0][0]))
           ? rawList[0]
           : rawList;
@@ -430,7 +430,7 @@ export const UserSwitcherButton = GObject.registerClass(
           }
         }
       } catch (error) {
-        if (!error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+        if (!(error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))) {
           logError(error, 'Failed to get session info from login1 D-Bus');
         }
       }
@@ -446,12 +446,12 @@ export const UserSwitcherButton = GObject.registerClass(
           return false;
         }
 
-        const uid = Number.parseInt(user.get_uid?.() ?? '-1', 10);
+        const uid = Number.parseInt(user.get_uid(), 10);
         if (!Number.isFinite(uid)) {
           return false;
         }
 
-        const username = user.get_user_name?.();
+        const username = user.get_user_name();
         if (!username) {
           return false;
         }
@@ -478,14 +478,14 @@ export const UserSwitcherButton = GObject.registerClass(
         return 1;
       }
 
-      const aName = a.get_real_name?.() || a.get_user_name?.() || '';
-      const bName = b.get_real_name?.() || b.get_user_name?.() || '';
+      const aName = a.get_real_name() || a.get_user_name() || '';
+      const bName = b.get_real_name() || b.get_user_name() || '';
       return GLib.utf8_collate(aName, bName);
     }
 
     _createUserWidget(user, currentUserName, sessionInfo) {
-      const displayName = user.get_real_name?.() || user.get_user_name?.() || '';
-      const username = user.get_user_name?.() || '';
+      const displayName = user.get_real_name() || user.get_user_name() || '';
+      const username = user.get_user_name() || '';
       const isCurrent = username === currentUserName;
       const isSignedIn = sessionInfo.loggedInUsers.has(username);
 
@@ -586,7 +586,7 @@ export const UserSwitcherButton = GObject.registerClass(
 
       this.menu.close(true);
 
-      const username = user.get_user_name?.();
+      const username = user.get_user_name();
       if (!username) {
         return;
       }
@@ -636,7 +636,7 @@ export const UserSwitcherButton = GObject.registerClass(
         );
         return true;
       } catch (error) {
-        if (error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+        if (error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
           return false;
         }
         logError(error, 'Failed to activate user session via login1 D-Bus');

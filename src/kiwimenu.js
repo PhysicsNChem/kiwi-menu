@@ -10,6 +10,7 @@ import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import { ForceQuitService } from './forceQuitService.js';
 import { RecentItemsSubmenu } from './recentItemsSubmenu.js';
@@ -17,6 +18,15 @@ import { createCustomMenuItem } from './customMenuItem.js';
 
 Gio._promisify(Gio.File.prototype, 'load_bytes_async');
 Gio._promisify(Gio.File.prototype, 'load_contents_async');
+
+// Maps action tokens from menulayout.json to SystemActions methods.
+const SYSTEM_ACTIONS = new Map([
+  ['lock-screen', 'activateLockScreen'],
+  ['suspend', 'activateSuspend'],
+  ['restart', 'activateRestart'],
+  ['power-off', 'activatePowerOff'],
+  ['logout', 'activateLogout'],
+]);
 
 async function loadJsonFileAsync(basePath, segments, cancellable) {
   const filePath = GLib.build_filenamev([basePath, ...segments]);
@@ -27,7 +37,7 @@ async function loadJsonFileAsync(basePath, segments, cancellable) {
     const parsed = JSON.parse(new TextDecoder().decode(bytes.get_data()));
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    if (error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+    if (error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
       return [];
     }
     logError(error, `Failed to load JSON data from ${filePath}`);
@@ -50,6 +60,7 @@ export const KiwiMenu = GObject.registerClass(
   this._cancellable = new Gio.Cancellable();
   this._isDestroyed = false;
   this._forceQuitService = new ForceQuitService();
+  this._systemActions = SystemActions.getDefault();
 
       this._icons = [];
       this._layout = [];
@@ -156,6 +167,7 @@ export const KiwiMenu = GObject.registerClass(
         this._forceQuitService = null;
       }
 
+      this._systemActions = null;
       this._settings = null;
 
       super.destroy();
@@ -269,7 +281,7 @@ export const KiwiMenu = GObject.registerClass(
         }
 
         let title = translatedTitle;
-        if (item.type === 'menu' && cmds?.includes('--logout')) {
+        if (item.type === 'menu' && cmds?.includes('logout')) {
           title = fullName
             ? this._gettext('Log Out %s...').format(fullName)
             : translatedTitle;
@@ -335,7 +347,7 @@ export const KiwiMenu = GObject.registerClass(
 
         return false;
       } catch (error) {
-        if (error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+        if (error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
           return false;
         }
         logError(error, 'Failed to determine available login users');
@@ -347,8 +359,10 @@ export const KiwiMenu = GObject.registerClass(
       const menuItem = iconName
         ? new PopupMenu.PopupImageMenuItem(title, iconName)
         : new PopupMenu.PopupMenuItem(title);
-      const isForceQuit = Array.isArray(cmds) && cmds.length === 1 && cmds[0] === 'force-quit';
-      const isAboutThisPc = Array.isArray(cmds) && cmds.length === 1 && cmds[0] === 'about-this-pc';
+      const singleCmd = Array.isArray(cmds) && cmds.length === 1 ? cmds[0] : null;
+      const isForceQuit = singleCmd === 'force-quit';
+      const isAboutThisPc = singleCmd === 'about-this-pc';
+      const systemAction = SYSTEM_ACTIONS.get(singleCmd);
 
       menuItem.connect('activate', () => {
         if (isForceQuit) {
@@ -360,6 +374,12 @@ export const KiwiMenu = GObject.registerClass(
         if (isAboutThisPc) {
           this.menu.close(true);
           this._openAboutWindow();
+          return;
+        }
+
+        if (systemAction) {
+          this.menu.close(true);
+          this._systemActions[systemAction]();
           return;
         }
 
@@ -409,7 +429,7 @@ export const KiwiMenu = GObject.registerClass(
         return fallback;
       }
 
-      const trimmed = commandString?.trim?.() ?? '';
+      const trimmed = commandString.trim();
       if (trimmed.length === 0) {
         return fallback;
       }

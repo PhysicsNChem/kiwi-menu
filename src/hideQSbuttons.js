@@ -281,7 +281,7 @@ export class QuickSettingsActionsController {
       return false;
     }
 
-    if (actor._settingsApp?.get_id?.() === 'org.gnome.Settings.desktop') {
+    if (actor._settingsApp?.get_id() === 'org.gnome.Settings.desktop') {
       return true;
     }
 

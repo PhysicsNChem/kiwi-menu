@@ -67,10 +67,6 @@ const OptionsPage = GObject.registerClass(
       const appStoreCommandRow = new Adw.EntryRow({
         title: this._('App Store Command'),
       });
-      appStoreCommandRow.set_subtitle?.(
-        this._('Command launched when opening the App Store menu item.')
-      );
-      appStoreCommandRow.set_placeholder_text?.(defaultAppStoreCommand);
       appStoreCommandRow.set_text(this._settings.get_string('app-store-command'));
 
       const restoreButton = new Gtk.Button({
@@ -79,7 +75,7 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Restore Default'),
         valign: Gtk.Align.CENTER,
       });
-      restoreButton.add_css_class?.('circular');
+      restoreButton.add_css_class('circular');
 
       const acceptButton = new Gtk.Button({
         icon_name: 'object-select-symbolic',
@@ -87,15 +83,15 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Apply Changes'),
         valign: Gtk.Align.CENTER,
       });
-      acceptButton.add_css_class?.('circular');
+      acceptButton.add_css_class('circular');
       acceptButton.set_visible(false);
       acceptButton.set_sensitive(false);
 
-      appStoreCommandRow.add_suffix?.(acceptButton);
-      appStoreCommandRow.add_suffix?.(restoreButton);
+      appStoreCommandRow.add_suffix(acceptButton);
+      appStoreCommandRow.add_suffix(restoreButton);
 
       const clearEntryFocus = () => {
-        const root = appStoreCommandRow.get_root?.();
+        const root = appStoreCommandRow.get_root();
         if (root && typeof root.set_focus === 'function') {
           root.set_focus(null);
         }
@@ -131,7 +127,7 @@ const OptionsPage = GObject.registerClass(
         }
         return false;
       });
-      appStoreCommandRow.add_controller?.(keyController);
+      appStoreCommandRow.add_controller(keyController);
 
       const focusController = new Gtk.EventControllerFocus();
       focusController.connect('enter', () => {
@@ -140,7 +136,7 @@ const OptionsPage = GObject.registerClass(
       focusController.connect('leave', () => {
         acceptButton.set_visible(false);
       });
-      appStoreCommandRow.add_controller?.(focusController);
+      appStoreCommandRow.add_controller(focusController);
 
       menuGroup.add(appStoreCommandRow);
 
@@ -157,7 +153,6 @@ const OptionsPage = GObject.registerClass(
       const customMenuLabelRow = new Adw.EntryRow({
         title: this._('Menu Label'),
       });
-      customMenuLabelRow.set_placeholder_text?.('My Custom Entry');
       customMenuLabelRow.set_text(this._settings.get_string('custom-menu-label'));
 
       const labelRestoreButton = new Gtk.Button({
@@ -166,7 +161,7 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Restore Default'),
         valign: Gtk.Align.CENTER,
       });
-      labelRestoreButton.add_css_class?.('circular');
+      labelRestoreButton.add_css_class('circular');
 
       const labelAcceptButton = new Gtk.Button({
         icon_name: 'object-select-symbolic',
@@ -174,15 +169,15 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Apply Changes'),
         valign: Gtk.Align.CENTER,
       });
-      labelAcceptButton.add_css_class?.('circular');
+      labelAcceptButton.add_css_class('circular');
       labelAcceptButton.set_visible(false);
       labelAcceptButton.set_sensitive(false);
 
-      customMenuLabelRow.add_suffix?.(labelAcceptButton);
-      customMenuLabelRow.add_suffix?.(labelRestoreButton);
+      customMenuLabelRow.add_suffix(labelAcceptButton);
+      customMenuLabelRow.add_suffix(labelRestoreButton);
 
       const clearLabelFocus = () => {
-        const root = customMenuLabelRow.get_root?.();
+        const root = customMenuLabelRow.get_root();
         if (root && typeof root.set_focus === 'function') {
           root.set_focus(null);
         }
@@ -218,7 +213,7 @@ const OptionsPage = GObject.registerClass(
         }
         return false;
       });
-      customMenuLabelRow.add_controller?.(labelKeyController);
+      customMenuLabelRow.add_controller(labelKeyController);
 
       const labelFocusController = new Gtk.EventControllerFocus();
       labelFocusController.connect('enter', () => {
@@ -227,7 +222,7 @@ const OptionsPage = GObject.registerClass(
       labelFocusController.connect('leave', () => {
         labelAcceptButton.set_visible(false);
       });
-      customMenuLabelRow.add_controller?.(labelFocusController);
+      customMenuLabelRow.add_controller(labelFocusController);
 
       customMenuExpanderRow.add_row(customMenuLabelRow);
 
@@ -236,7 +231,6 @@ const OptionsPage = GObject.registerClass(
       const customMenuCommandRow = new Adw.EntryRow({
         title: this._('Command'),
       });
-      customMenuCommandRow.set_placeholder_text?.('gnome-terminal');
       customMenuCommandRow.set_text(this._settings.get_string('custom-menu-command'));
 
       const commandRestoreButton = new Gtk.Button({
@@ -245,7 +239,7 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Restore Default'),
         valign: Gtk.Align.CENTER,
       });
-      commandRestoreButton.add_css_class?.('circular');
+      commandRestoreButton.add_css_class('circular');
 
       const commandAcceptButton = new Gtk.Button({
         icon_name: 'object-select-symbolic',
@@ -253,15 +247,15 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Apply Changes'),
         valign: Gtk.Align.CENTER,
       });
-      commandAcceptButton.add_css_class?.('circular');
+      commandAcceptButton.add_css_class('circular');
       commandAcceptButton.set_visible(false);
       commandAcceptButton.set_sensitive(false);
 
-      customMenuCommandRow.add_suffix?.(commandAcceptButton);
-      customMenuCommandRow.add_suffix?.(commandRestoreButton);
+      customMenuCommandRow.add_suffix(commandAcceptButton);
+      customMenuCommandRow.add_suffix(commandRestoreButton);
 
       const clearCommandFocus = () => {
-        const root = customMenuCommandRow.get_root?.();
+        const root = customMenuCommandRow.get_root();
         if (root && typeof root.set_focus === 'function') {
           root.set_focus(null);
         }
@@ -297,7 +291,7 @@ const OptionsPage = GObject.registerClass(
         }
         return false;
       });
-      customMenuCommandRow.add_controller?.(commandKeyController);
+      customMenuCommandRow.add_controller(commandKeyController);
 
       const commandFocusController = new Gtk.EventControllerFocus();
       commandFocusController.connect('enter', () => {
@@ -306,7 +300,7 @@ const OptionsPage = GObject.registerClass(
       commandFocusController.connect('leave', () => {
         commandAcceptButton.set_visible(false);
       });
-      customMenuCommandRow.add_controller?.(commandFocusController);
+      customMenuCommandRow.add_controller(commandFocusController);
 
       customMenuExpanderRow.add_row(customMenuCommandRow);
 
@@ -328,7 +322,7 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Choose Icon File'),
         valign: Gtk.Align.CENTER,
       });
-      iconChooseButton.add_css_class?.('circular');
+      iconChooseButton.add_css_class('circular');
 
       const iconClearButton = new Gtk.Button({
         icon_name: 'edit-clear-symbolic',
@@ -336,11 +330,11 @@ const OptionsPage = GObject.registerClass(
         tooltip_text: this._('Remove Icon'),
         valign: Gtk.Align.CENTER,
       });
-      iconClearButton.add_css_class?.('circular');
+      iconClearButton.add_css_class('circular');
 
-      customMenuIconRow.add_suffix?.(iconPreview);
-      customMenuIconRow.add_suffix?.(iconChooseButton);
-      customMenuIconRow.add_suffix?.(iconClearButton);
+      customMenuIconRow.add_suffix(iconPreview);
+      customMenuIconRow.add_suffix(iconChooseButton);
+      customMenuIconRow.add_suffix(iconClearButton);
 
       const updateIconRow = () => {
         const path = this._settings.get_string('custom-menu-icon')?.trim() ?? '';
@@ -350,18 +344,18 @@ const OptionsPage = GObject.registerClass(
           const file = Gio.File.new_for_path(path);
           const exists = file.query_exists(null);
           if (exists) {
-            iconPreview.set_from_gicon?.(new Gio.FileIcon({ file }));
+            iconPreview.set_from_gicon(new Gio.FileIcon({ file }));
           } else {
-            iconPreview.clear?.();
+            iconPreview.clear();
           }
           iconPreview.set_visible(exists);
-          customMenuIconRow.set_subtitle?.(
+          customMenuIconRow.set_subtitle(
             exists ? file.get_basename() : this._('Selected file was not found.')
           );
         } else {
-          iconPreview.clear?.();
+          iconPreview.clear();
           iconPreview.set_visible(false);
-          customMenuIconRow.set_subtitle?.(defaultIconSubtitle);
+          customMenuIconRow.set_subtitle(defaultIconSubtitle);
         }
 
         iconClearButton.set_visible(hasIcon);
@@ -375,7 +369,7 @@ const OptionsPage = GObject.registerClass(
 
         const filter = new Gtk.FileFilter();
         filter.set_name(this._('Images'));
-        filter.add_pixbuf_formats?.();
+        filter.add_pixbuf_formats();
         filter.add_mime_type('image/svg+xml');
 
         const filters = new Gio.ListStore({ item_type: Gtk.FileFilter });
@@ -386,11 +380,11 @@ const OptionsPage = GObject.registerClass(
         if (currentPath.length > 0) {
           const currentFile = Gio.File.new_for_path(currentPath);
           if (currentFile.query_exists(null)) {
-            dialog.set_initial_file?.(currentFile);
+            dialog.set_initial_file(currentFile);
           }
         }
 
-        const root = customMenuIconRow.get_root?.() ?? null;
+        const root = customMenuIconRow.get_root();
         dialog.open(root, null, (source, result) => {
           try {
             const file = source.open_finish(result);

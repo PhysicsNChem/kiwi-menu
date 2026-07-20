@@ -1,5 +1,5 @@
 {
-  "description": "macOS-inspired quick menu for GNOME\n\n## Features\n\n* Recent Items\n* Power menu\n* Hide Quicksettings buttons\n* Hide Activities buttons\n* Custom App Store Command\n* One Personalized  Menu Item\n* macOS style user switcher\n* Multilingual support\n\nReads ~/.local/share/recently-used.xbel for the Recent Items submenu and /etc/passwd to detect whether multiple real user accounts exist (used to decide whether to show the user switcher).",
+  "description": "macOS-inspired quick menu for GNOME\n\n## Features\n\n* Recent Items\n* Power menu\n* Hide Quicksettings buttons\n* Hide Activities buttons\n* Custom App Store Command\n* One Personalized  Menu Item\n* macOS style user switcher, About dialog, Kill window\n* Custom keyboard shortcuts\n* Multilingual support\n\nReads ~/.local/share/recently-used.xbel for the Recent Items submenu and /etc/passwd to detect whether multiple real user accounts exist (used to decide whether to show the user switcher).",
   "donations": {
     "buymeacoffee": "arnisk"
   },

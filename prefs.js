@@ -140,6 +140,76 @@ const OptionsPage = GObject.registerClass(
 
       menuGroup.add(appStoreCommandRow);
 
+      // Force Quit keyboard shortcut
+      const defaultForceQuitShortcut = '<Alt><Super>Escape';
+      const forceQuitShortcutRow = new Adw.ActionRow({
+        title: this._('Force Quit Shortcut'),
+        subtitle: this._('Keyboard shortcut that opens the Force Quit window.'),
+        activatable: true,
+      });
+
+      const forceQuitShortcutLabel = new Gtk.Label({
+        valign: Gtk.Align.CENTER,
+      });
+      forceQuitShortcutLabel.add_css_class('dim-label');
+      forceQuitShortcutRow.add_suffix(forceQuitShortcutLabel);
+
+      const forceQuitRestoreButton = new Gtk.Button({
+        icon_name: 'edit-undo-symbolic',
+        has_frame: false,
+        tooltip_text: this._('Restore Default'),
+        valign: Gtk.Align.CENTER,
+      });
+      forceQuitRestoreButton.add_css_class('circular');
+      forceQuitRestoreButton.set_visible(false);
+      forceQuitShortcutRow.add_suffix(forceQuitRestoreButton);
+
+      const updateForceQuitShortcut = () => {
+        const bindings = this._settings.get_strv('force-quit-shortcut');
+        const accel = bindings.length > 0 ? bindings[0] : '';
+        const [ok, keyval, mods] = Gtk.accelerator_parse(accel);
+        forceQuitShortcutLabel.set_label(
+          accel && ok ? Gtk.accelerator_get_label(keyval, mods) : this._('Disabled')
+        );
+
+        const [defOk, defKey, defMods] = Gtk.accelerator_parse(defaultForceQuitShortcut);
+        const isDefault = ok && defOk && keyval === defKey && mods === defMods;
+        forceQuitRestoreButton.set_visible(!isDefault);
+        forceQuitRestoreButton.set_sensitive(!isDefault);
+      };
+      updateForceQuitShortcut();
+      this._settings.connect('changed::force-quit-shortcut', updateForceQuitShortcut);
+
+      forceQuitRestoreButton.connect('clicked', () => {
+        this._settings.set_strv('force-quit-shortcut', [defaultForceQuitShortcut]);
+      });
+
+      forceQuitShortcutRow.connect('activated', () => {
+        this._captureForceQuitShortcut(forceQuitShortcutRow);
+      });
+
+      menuGroup.add(forceQuitShortcutRow);
+
+      // macOS style accelerator symbols
+      const macosAccelSwitch = new Gtk.Switch({
+        valign: Gtk.Align.CENTER,
+        active: this._settings.get_boolean('macos-accelerators'),
+      });
+      const macosAccelRow = new Adw.ActionRow({
+        title: this._('macOS Style Shortcuts'),
+        subtitle: this._('Show accelerator hints using macOS symbols (⌘ ⌥ ^ ⎋).'),
+        activatable_widget: macosAccelSwitch,
+      });
+      macosAccelRow.add_suffix(macosAccelSwitch);
+      menuGroup.add(macosAccelRow);
+
+      this._settings.bind(
+        'macos-accelerators',
+        macosAccelSwitch,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+      );
+
       // Custom menu item section - using ExpanderRow
       const customMenuExpanderRow = new Adw.ExpanderRow({
         title: this._('Custom Menu Item'),
@@ -511,6 +581,57 @@ const OptionsPage = GObject.registerClass(
         this._settings.set_boolean('activity-menu-visibility', !widget.get_active());
       });
 
+    }
+
+    _captureForceQuitShortcut(row) {
+      const dialog = new Adw.Dialog({
+        title: this._('Set Shortcut'),
+        content_width: 420,
+        content_height: 240,
+      });
+
+      const toolbarView = new Adw.ToolbarView();
+      toolbarView.add_top_bar(new Adw.HeaderBar());
+
+      const statusPage = new Adw.StatusPage({
+        icon_name: 'preferences-desktop-keyboard-shortcuts-symbolic',
+        title: this._('Press a Shortcut'),
+        description: this._('Esc to cancel · Backspace to disable'),
+      });
+      statusPage.add_css_class('compact');
+      statusPage.add_css_class('kiwimenu-shortcut-status');
+      toolbarView.set_content(statusPage);
+      dialog.set_child(toolbarView);
+
+      const keyController = new Gtk.EventControllerKey();
+      keyController.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+      keyController.connect('key-pressed', (controller, keyval, keycode, state) => {
+        let mask = state & Gtk.accelerator_get_default_mod_mask();
+        mask &= ~Gdk.ModifierType.LOCK_MASK;
+
+        if (keyval === Gdk.KEY_Escape && mask === 0) {
+          dialog.close();
+          return Gdk.EVENT_STOP;
+        }
+
+        if (keyval === Gdk.KEY_BackSpace && mask === 0) {
+          this._settings.set_strv('force-quit-shortcut', []);
+          dialog.close();
+          return Gdk.EVENT_STOP;
+        }
+
+        if (mask === 0 || !Gtk.accelerator_valid(keyval, mask)) {
+          return Gdk.EVENT_STOP;
+        }
+
+        const accel = Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask);
+        this._settings.set_strv('force-quit-shortcut', [accel]);
+        dialog.close();
+        return Gdk.EVENT_STOP;
+      });
+      dialog.add_controller(keyController);
+
+      dialog.present(row.get_root());
     }
   }
 );

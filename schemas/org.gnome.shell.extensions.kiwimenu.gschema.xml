@@ -51,6 +51,16 @@
       <summary>Custom menu item icon</summary>
       <description>Path to an image file used as the icon for the custom menu item</description>
     </key>
+    <key type="b" name="macos-accelerators">
+      <default>false</default>
+      <summary>macOS style accelerator symbols</summary>
+      <description>Display accelerator hints using macOS symbols (⌘ ⌥ ^ ⎋) instead of text</description>
+    </key>
+    <key type="as" name="force-quit-shortcut">
+      <default><![CDATA[['<Alt><Super>Escape']]]></default>
+      <summary>Force Quit shortcut</summary>
+      <description>Keyboard shortcut that opens the Force Quit window</description>
+    </key>
     <key type="i" name="prefs-default-width">
       <default>700</default>
       <summary>Default width for the preferences window</summary>

@@ -3,9 +3,12 @@
  * kiwimenu.js - Implements the main Kiwi Menu functionality.
  */
 
+import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
@@ -121,6 +124,14 @@ export const KiwiMenu = GObject.registerClass(
           }
         }
       );
+
+      Main.wm.addKeybinding(
+        'force-quit-shortcut',
+        this._settings,
+        Meta.KeyBindingFlags.NONE,
+        Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
+        () => this._openForceQuitWindow()
+      );
     }
 
     async _loadDataAsync() {
@@ -154,6 +165,8 @@ export const KiwiMenu = GObject.registerClass(
 
       this._settingsSignalIds.forEach((id) => this._settings.disconnect(id));
       this._settingsSignalIds = [];
+
+      Main.wm.removeKeybinding('force-quit-shortcut');
 
       if (this._menuOpenSignalId !== 0) {
         this.menu.disconnect(this._menuOpenSignalId);
@@ -242,7 +255,7 @@ export const KiwiMenu = GObject.registerClass(
       layout.forEach((item) => {
         switch (item.type) {
           case 'menu':
-            this._makeMenu(item.title, item.cmds, item.icon);
+            this._makeMenu(item.title, item.cmds, item.icon, item.accel);
             
             // Add custom menu item right after App Store entry
             if (!customMenuAdded && item.commandSettingKey === 'app-store-command') {
@@ -292,6 +305,13 @@ export const KiwiMenu = GObject.registerClass(
           title,
           cmds,
         };
+
+        if (item.type === 'menu' && cmds?.includes('force-quit')) {
+          const bindings = this._settings.get_strv('force-quit-shortcut');
+          outputItem.accel = bindings.length > 0
+            ? this._shortcutToLabel(bindings[0])
+            : undefined;
+        }
 
         if (outputItem.requiresMultipleUsers && !hasMultipleUsers) {
           continue;
@@ -355,7 +375,7 @@ export const KiwiMenu = GObject.registerClass(
       }
     }
 
-    _makeMenu(title, cmds, iconName) {
+    _makeMenu(title, cmds, iconName, accel) {
       const menuItem = iconName
         ? new PopupMenu.PopupImageMenuItem(title, iconName)
         : new PopupMenu.PopupMenuItem(title);
@@ -385,7 +405,44 @@ export const KiwiMenu = GObject.registerClass(
 
         Util.spawn(cmds);
       });
+
+      if (accel) {
+        menuItem.label.x_expand = true;
+        const accelLabel = new St.Label({
+          text: this._styleAccel(accel),
+          style_class: 'kiwi-accel-label',
+          x_align: Clutter.ActorAlign.END,
+          y_align: Clutter.ActorAlign.CENTER,
+          opacity: 140,
+        });
+        menuItem.add_child(accelLabel);
+      }
+
       this.menu.addMenuItem(menuItem);
+    }
+
+    _shortcutToLabel(accel) {
+      return accel
+        .replace(/<Super>/g, 'Super+')
+        .replace(/<(Primary|Control|Ctrl)>/g, 'Ctrl+')
+        .replace(/<Alt>/g, 'Alt+')
+        .replace(/<Shift>/g, 'Shift+')
+        .replace(/Escape/g, 'Esc')
+        .replace(/Return/g, 'Enter');
+    }
+
+    _styleAccel(accel) {
+      const upper = accel.replace(/\b[a-z]\b/g, (c) => c.toUpperCase());
+      if (!this._settings.get_boolean('macos-accelerators')) {
+        return upper;
+      }
+      return upper
+        .replace(/Super/g, '⌘')
+        .replace(/Shift/g, '⇧')
+        .replace(/Ctrl/g, '⌃')
+        .replace(/Alt/g, '⌥')
+        .replace(/Esc/g, '⎋')
+        .replace(/\+/g, ' ');
     }
 
     _makeRecentItemsMenu(title, iconName) {

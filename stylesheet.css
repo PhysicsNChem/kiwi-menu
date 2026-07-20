@@ -28,7 +28,12 @@
 
 .kiwi-main-menu .popup-menu-icon {
   icon-size: 0.9em;
-  margin-right: 6px;
+  margin-right: 3px;
+}
+
+.kiwi-accel-label {
+  font-size: 0.9em;
+  padding-left: 12px;
 }
 
 .popup-section-header-label {

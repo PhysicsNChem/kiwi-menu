@@ -40,3 +40,7 @@
 .kiwimenu-coffee-button:active {
   background-color: alpha(@accent_bg_color, 0.34);
 }
+
+.kiwimenu-shortcut-status .icon {
+  -gtk-icon-size: 48px;
+}

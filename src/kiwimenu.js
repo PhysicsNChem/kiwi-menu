@@ -17,7 +17,7 @@ import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.j
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import { ForceQuitService } from './forceQuitService.js';
 import { RecentItemsSubmenu } from './recentItemsSubmenu.js';
-import { createCustomMenuItem } from './customMenuItem.js';
+import { createCustomMenuItem, runCustomMenuCommand } from './customMenuItem.js';
 
 Gio._promisify(Gio.File.prototype, 'load_bytes_async');
 Gio._promisify(Gio.File.prototype, 'load_contents_async');
@@ -115,6 +115,11 @@ export const KiwiMenu = GObject.registerClass(
           this._renderPopupMenu().catch(logError)
         )
       );
+      this._settingsSignalIds.push(
+        this._settings.connect('changed::custom-menu-shortcut', () =>
+          this._renderPopupMenu().catch(logError)
+        )
+      );
 
       this._menuOpenSignalId = this.menu.connect(
         'open-state-changed',
@@ -131,6 +136,14 @@ export const KiwiMenu = GObject.registerClass(
         Meta.KeyBindingFlags.NONE,
         Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
         () => this._openForceQuitWindow()
+      );
+
+      Main.wm.addKeybinding(
+        'custom-menu-shortcut',
+        this._settings,
+        Meta.KeyBindingFlags.NONE,
+        Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
+        () => runCustomMenuCommand(this._settings)
       );
     }
 
@@ -167,6 +180,7 @@ export const KiwiMenu = GObject.registerClass(
       this._settingsSignalIds = [];
 
       Main.wm.removeKeybinding('force-quit-shortcut');
+      Main.wm.removeKeybinding('custom-menu-shortcut');
 
       if (this._menuOpenSignalId !== 0) {
         this.menu.disconnect(this._menuOpenSignalId);
@@ -261,6 +275,10 @@ export const KiwiMenu = GObject.registerClass(
             if (!customMenuAdded && item.commandSettingKey === 'app-store-command') {
               const customItem = createCustomMenuItem(this._settings, this._gettext.bind(this));
               if (customItem) {
+                const bindings = this._settings.get_strv('custom-menu-shortcut');
+                if (bindings.length > 0) {
+                  this._attachAccelLabel(customItem, this._shortcutToLabel(bindings[0]));
+                }
                 this.menu.addMenuItem(customItem);
               }
               customMenuAdded = true;
@@ -406,19 +424,25 @@ export const KiwiMenu = GObject.registerClass(
         Util.spawn(cmds);
       });
 
-      if (accel) {
-        menuItem.label.x_expand = true;
-        const accelLabel = new St.Label({
-          text: this._styleAccel(accel),
-          style_class: 'kiwi-accel-label',
-          x_align: Clutter.ActorAlign.END,
-          y_align: Clutter.ActorAlign.CENTER,
-          opacity: 140,
-        });
-        menuItem.add_child(accelLabel);
-      }
+      this._attachAccelLabel(menuItem, accel);
 
       this.menu.addMenuItem(menuItem);
+    }
+
+    _attachAccelLabel(menuItem, accel) {
+      if (!accel) {
+        return;
+      }
+
+      menuItem.label.x_expand = true;
+      const accelLabel = new St.Label({
+        text: this._styleAccel(accel),
+        style_class: 'kiwi-accel-label',
+        x_align: Clutter.ActorAlign.END,
+        y_align: Clutter.ActorAlign.CENTER,
+        opacity: 140,
+      });
+      menuItem.add_child(accelLabel);
     }
 
     _shortcutToLabel(accel) {

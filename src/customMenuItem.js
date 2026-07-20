@@ -47,17 +47,32 @@ export function createCustomMenuItem(settings, gettextFunc) {
         ? new PopupMenu.PopupImageMenuItem(trimmedLabel, new Gio.FileIcon({ file: iconFile }))
         : new PopupMenu.PopupMenuItem(trimmedLabel);
 
-    menuItem.connect('activate', () => {
-        try {
-            // Run command through user's interactive shell to respect their $PATH
-            // -i sources .bashrc/.zshrc where PATH is typically modified
-            const shell = GLib.getenv('SHELL') || '/bin/bash';
-            const argv = [shell, '-i', '-c', trimmedCommand];
-            Util.spawn(argv);
-        } catch (error) {
-            logError(error, `Failed to execute custom menu command: ${trimmedCommand}`);
-        }
-    });
+    menuItem.connect('activate', () => runCustomMenuCommand(settings));
 
     return menuItem;
+}
+
+/**
+ * Runs the configured custom menu command, if enabled and set.
+ *
+ * @param {Gio.Settings} settings - The extension settings object
+ */
+export function runCustomMenuCommand(settings) {
+    if (!settings || !settings.get_boolean('custom-menu-enabled')) {
+        return;
+    }
+
+    const command = settings.get_string('custom-menu-command').trim();
+    if (command.length === 0) {
+        return;
+    }
+
+    try {
+        // Run command through user's interactive shell to respect their $PATH
+        // -i sources .bashrc/.zshrc where PATH is typically modified
+        const shell = GLib.getenv('SHELL') || '/bin/bash';
+        Util.spawn([shell, '-i', '-c', command]);
+    } catch (error) {
+        logError(error, `Failed to execute custom menu command: ${command}`);
+    }
 }

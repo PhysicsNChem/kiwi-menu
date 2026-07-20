@@ -51,6 +51,11 @@
       <summary>Custom menu item icon</summary>
       <description>Path to an image file used as the icon for the custom menu item</description>
     </key>
+    <key type="as" name="custom-menu-shortcut">
+      <default>[]</default>
+      <summary>Custom menu item shortcut</summary>
+      <description>Keyboard shortcut that runs the custom menu item command</description>
+    </key>
     <key type="b" name="macos-accelerators">
       <default>false</default>
       <summary>macOS style accelerator symbols</summary>

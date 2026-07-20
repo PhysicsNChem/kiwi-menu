@@ -185,7 +185,7 @@ const OptionsPage = GObject.registerClass(
       });
 
       forceQuitShortcutRow.connect('activated', () => {
-        this._captureForceQuitShortcut(forceQuitShortcutRow);
+        this._captureShortcut('force-quit-shortcut', forceQuitShortcutRow);
       });
 
       menuGroup.add(forceQuitShortcutRow);
@@ -373,6 +373,51 @@ const OptionsPage = GObject.registerClass(
       customMenuCommandRow.add_controller(commandFocusController);
 
       customMenuExpanderRow.add_row(customMenuCommandRow);
+
+      // Custom menu keyboard shortcut
+      const customShortcutRow = new Adw.ActionRow({
+        title: this._('Keyboard Shortcut'),
+        subtitle: this._('Shortcut that runs the custom command.'),
+        activatable: true,
+      });
+
+      const customShortcutLabel = new Gtk.Label({
+        valign: Gtk.Align.CENTER,
+      });
+      customShortcutLabel.add_css_class('dim-label');
+      customShortcutRow.add_suffix(customShortcutLabel);
+
+      const customShortcutClearButton = new Gtk.Button({
+        icon_name: 'edit-clear-symbolic',
+        has_frame: false,
+        tooltip_text: this._('Clear Shortcut'),
+        valign: Gtk.Align.CENTER,
+      });
+      customShortcutClearButton.add_css_class('circular');
+      customShortcutClearButton.set_visible(false);
+      customShortcutRow.add_suffix(customShortcutClearButton);
+
+      const updateCustomShortcut = () => {
+        const bindings = this._settings.get_strv('custom-menu-shortcut');
+        const accel = bindings.length > 0 ? bindings[0] : '';
+        const [ok, keyval, mods] = Gtk.accelerator_parse(accel);
+        customShortcutLabel.set_label(
+          accel && ok ? Gtk.accelerator_get_label(keyval, mods) : this._('Disabled')
+        );
+        customShortcutClearButton.set_visible(!!accel && ok);
+      };
+      updateCustomShortcut();
+      this._settings.connect('changed::custom-menu-shortcut', updateCustomShortcut);
+
+      customShortcutClearButton.connect('clicked', () => {
+        this._settings.set_strv('custom-menu-shortcut', []);
+      });
+
+      customShortcutRow.connect('activated', () => {
+        this._captureShortcut('custom-menu-shortcut', customShortcutRow);
+      });
+
+      customMenuExpanderRow.add_row(customShortcutRow);
 
       // Custom menu icon chooser
       const defaultIconSubtitle = this._('Optional image shown next to the menu label.');
@@ -583,7 +628,7 @@ const OptionsPage = GObject.registerClass(
 
     }
 
-    _captureForceQuitShortcut(row) {
+    _captureShortcut(settingKey, row) {
       const dialog = new Adw.Dialog({
         title: this._('Set Shortcut'),
         content_width: 420,
@@ -615,7 +660,7 @@ const OptionsPage = GObject.registerClass(
         }
 
         if (keyval === Gdk.KEY_BackSpace && mask === 0) {
-          this._settings.set_strv('force-quit-shortcut', []);
+          this._settings.set_strv(settingKey, []);
           dialog.close();
           return Gdk.EVENT_STOP;
         }
@@ -625,7 +670,7 @@ const OptionsPage = GObject.registerClass(
         }
 
         const accel = Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask);
-        this._settings.set_strv('force-quit-shortcut', [accel]);
+        this._settings.set_strv(settingKey, [accel]);
         dialog.close();
         return Gdk.EVENT_STOP;
       });

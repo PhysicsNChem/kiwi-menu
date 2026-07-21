@@ -8,9 +8,11 @@
 
 # <img width="43" height="48" alt="kiwimenu" src="https://github.com/user-attachments/assets/96437e0e-8884-4041-a3b2-c60ff15cd433" /> Kiwi Menu
 
-Kiwi Menu replaces the Activities button with a compact, macOS-inspired launcher that keeps your most common session actions one click away.
+Kiwi Menu adds compact, macOS-inspired quick menu that keeps your most common session actions one click away.
 
-<img alt="kiwi-menu" src="https://extensions.gnome.org/extension-data/screenshots/screenshot_8697_vEAQnNX.png" />
+
+<img width="2261" height="1322" alt="Screenshot From 2026-07-21 edited-3" src="https://github.com/user-attachments/assets/2c23a992-6015-4b10-a4b8-91a397fdfc25" />
+
 
 ## Features
 
@@ -28,7 +30,7 @@ Kiwi Menu replaces the Activities button with a compact, macOS-inspired launcher
 
 ## Other extensions
 
-Recommended to pair with [Kiwi is not Apple](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/).
+Recommended to pair with [Kiwi (is not Apple)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/) and [blur-my-shell](https://github.com/aunetx/blur-my-shell) for blurred effect.
 
 ## Known Issues
 

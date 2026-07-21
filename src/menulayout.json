@@ -13,7 +13,7 @@
     "title": "System Settings...",
     "cmds": ["gnome-control-center"],
     "icon": "preferences-system-symbolic",
-    "accel": "Super+,"
+    "accelKey": "control-center"
   },
   {
     "type": "menu",
@@ -68,13 +68,13 @@
     "title": "Lock Screen",
     "cmds": ["lock-screen"],
     "icon": "system-lock-screen-symbolic",
-    "accel": "Super+L"
+    "accelKey": "screensaver"
   },
   {
     "type": "menu",
     "title": "Log Out...",
     "cmds": ["logout"],
     "icon": "system-log-out-symbolic",
-    "accel": "Ctrl+Alt+Del"
+    "accelKey": "logout"
   }
 ]

@@ -64,6 +64,7 @@ export const KiwiMenu = GObject.registerClass(
   this._isDestroyed = false;
   this._forceQuitService = new ForceQuitService();
   this._systemActions = SystemActions.getDefault();
+  this._mediaKeysSettings = this._createMediaKeysSettings();
 
       this._icons = [];
       this._layout = [];
@@ -195,6 +196,7 @@ export const KiwiMenu = GObject.registerClass(
       }
 
       this._systemActions = null;
+      this._mediaKeysSettings = null;
       this._settings = null;
 
       super.destroy();
@@ -329,6 +331,8 @@ export const KiwiMenu = GObject.registerClass(
           outputItem.accel = bindings.length > 0
             ? this._shortcutToLabel(bindings[0])
             : undefined;
+        } else if (item.type === 'menu' && item.accelKey) {
+          outputItem.accel = this._resolveSystemAccel(item.accelKey);
         }
 
         if (outputItem.requiresMultipleUsers && !hasMultipleUsers) {
@@ -445,6 +449,35 @@ export const KiwiMenu = GObject.registerClass(
       menuItem.add_child(accelLabel);
     }
 
+    _createMediaKeysSettings() {
+      try {
+        return new Gio.Settings({
+          schema_id: 'org.gnome.settings-daemon.plugins.media-keys',
+        });
+      } catch (error) {
+        logError(error, 'Failed to access system media-keys settings');
+        return null;
+      }
+    }
+
+    // Reads the current system shortcut for a media-key so labels track user rebinds.
+    _resolveSystemAccel(mediaKey) {
+      if (!this._mediaKeysSettings) {
+        return undefined;
+      }
+
+      let bindings;
+      try {
+        bindings = this._mediaKeysSettings.get_strv(mediaKey);
+      } catch (error) {
+        logError(error, `Failed to read system shortcut '${mediaKey}'`);
+        return undefined;
+      }
+
+      const binding = bindings.find((value) => value && value.trim().length > 0);
+      return binding ? this._shortcutToLabel(binding) : undefined;
+    }
+
     _shortcutToLabel(accel) {
       return accel
         .replace(/<Super>/g, 'Super+')
@@ -452,6 +485,7 @@ export const KiwiMenu = GObject.registerClass(
         .replace(/<Alt>/g, 'Alt+')
         .replace(/<Shift>/g, 'Shift+')
         .replace(/Escape/g, 'Esc')
+        .replace(/Delete/g, 'Del')
         .replace(/Return/g, 'Enter');
     }
 

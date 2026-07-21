@@ -164,6 +164,16 @@ const OptionsPage = GObject.registerClass(
       forceQuitRestoreButton.set_visible(false);
       forceQuitShortcutRow.add_suffix(forceQuitRestoreButton);
 
+      const forceQuitClearButton = new Gtk.Button({
+        icon_name: 'edit-clear-symbolic',
+        has_frame: false,
+        tooltip_text: this._('Clear Shortcut'),
+        valign: Gtk.Align.CENTER,
+      });
+      forceQuitClearButton.add_css_class('circular');
+      forceQuitClearButton.set_visible(false);
+      forceQuitShortcutRow.add_suffix(forceQuitClearButton);
+
       const updateForceQuitShortcut = () => {
         const bindings = this._settings.get_strv('force-quit-shortcut');
         const accel = bindings.length > 0 ? bindings[0] : '';
@@ -172,6 +182,8 @@ const OptionsPage = GObject.registerClass(
           accel && ok ? Gtk.accelerator_get_label(keyval, mods) : this._('Disabled')
         );
 
+        forceQuitClearButton.set_visible(!!accel && ok);
+
         const [defOk, defKey, defMods] = Gtk.accelerator_parse(defaultForceQuitShortcut);
         const isDefault = ok && defOk && keyval === defKey && mods === defMods;
         forceQuitRestoreButton.set_visible(!isDefault);
@@ -179,6 +191,10 @@ const OptionsPage = GObject.registerClass(
       };
       updateForceQuitShortcut();
       this._settings.connect('changed::force-quit-shortcut', updateForceQuitShortcut);
+
+      forceQuitClearButton.connect('clicked', () => {
+        this._settings.set_strv('force-quit-shortcut', []);
+      });
 
       forceQuitRestoreButton.connect('clicked', () => {
         this._settings.set_strv('force-quit-shortcut', [defaultForceQuitShortcut]);

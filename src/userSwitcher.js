@@ -141,7 +141,6 @@ export const UserSwitcherButton = GObject.registerClass(
       this._userManager = null;
       this._loginManagerProxy = null;
       this._loginManagerProxyPromise = null;
-      this._repaintFuncId = 0;
       this._cancellable = new Gio.Cancellable();
       this._isDestroyed = false;
       this._gettext = extension?.gettext?.bind(extension) ?? ((text) => text);
@@ -184,8 +183,6 @@ export const UserSwitcherButton = GObject.registerClass(
         this.menu.disconnect(this._menuOpenSignalId);
         this._menuOpenSignalId = 0;
       }
-
-      this._clearRepaintFunc();
 
       this._loginManagerProxy = null;
       this._loginManagerProxyPromise = null;
@@ -288,13 +285,6 @@ export const UserSwitcherButton = GObject.registerClass(
       );
 
       this._updatePanelIcon(users, currentUserName);
-    }
-
-    _clearRepaintFunc() {
-      if (this._repaintFuncId) {
-        Clutter.threads_remove_repaint_func(this._repaintFuncId);
-        this._repaintFuncId = 0;
-      }
     }
 
     _ensureLoginManagerProxy() {
@@ -650,11 +640,13 @@ export const UserSwitcherButton = GObject.registerClass(
         Main.screenShield.lock(false);
       }
 
-      // Use repaint func to ensure lock animation completes before switching to GDM
-      // Track the source ID so it can be removed when superseded or during destroy()
-      this._clearRepaintFunc();
-      this._repaintFuncId = Clutter.threads_add_repaint_func(Clutter.RepaintFlags.POST_PAINT, () => {
-        this._repaintFuncId = 0;
+      // Defer the GDM handoff to the next paint so the lock settles first.
+      // The callback must be self-contained and must NOT be tracked/removed on
+      // destroy(): Main.screenShield.lock() switches the shell to the
+      // 'unlock-dialog' session mode, which disables this extension before the
+      // callback fires. As a global stage callback with no reference to this
+      // (soon-destroyed) object, it still runs and reaches the login screen.
+      Clutter.threads_add_repaint_func(Clutter.RepaintFlags.POST_PAINT, () => {
         try {
           Gdm.goto_login_session_sync(null);
         } catch (error) {

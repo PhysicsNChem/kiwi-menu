@@ -5,3 +5,4 @@ samples
 .c[a-z]*/
 *.log
 locale
+*.compiled

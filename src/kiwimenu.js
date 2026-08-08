@@ -80,8 +80,11 @@ export const KiwiMenu = GObject.registerClass(
 
       this._icon = new St.Icon({
         style_class: 'menu-button',
+        y_align: Clutter.ActorAlign.CENTER,
+        y_expand: true,
       });
       this.add_child(this._icon);
+      this._icon.translation_y = -1.15;
 
       this._settingsSignalIds.push(
         this._settings.connect('changed::icon', () => this._setIcon())
@@ -523,9 +526,8 @@ export const KiwiMenu = GObject.registerClass(
     }
 
     _openAboutWindow() {
-      const script = GLib.build_filenamev([this._extensionPath, 'app', 'aboutWindow.js']);
       try {
-        Util.spawn(['gjs', '-m', script]);
+        Util.spawn(['gnome-control-center', 'system', 'about']);
       } catch (error) {
         logError(error, 'Failed to launch About This PC window');
       }

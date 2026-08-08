@@ -17,7 +17,7 @@
   },
   {
     "type": "menu",
-    "title": "App Store...",
+    "title": "GNOME Software",
     "cmds": ["gnome-software"],
     "commandSettingKey": "app-store-command",
     "icon": "system-software-install-symbolic"
